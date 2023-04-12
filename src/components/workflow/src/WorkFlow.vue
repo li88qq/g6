@@ -3,7 +3,7 @@
         <div class="view-header"></div>
         <div class="view-body">
             <div class="view-main">
-                <Design @edgeClick="edgeClickAc"></Design>
+                <Design @edgeClick="edgeClickAc" ref="designRef"></Design>
             </div>
             <div class="view-edit"></div>
         </div>
@@ -17,7 +17,9 @@ import {ref} from 'vue'
 import AddContext from './components/AddContext.vue'
 import Design from './components/Design.vue'
 
+//引用
 const addContextRef = ref()
+const designRef = ref();
 
 //添加按钮点击事件
 const edgeClickAc = (evt) => {
@@ -25,8 +27,8 @@ const edgeClickAc = (evt) => {
 }
 
 //添加节点或路由
-const addAc = (type) => {
-
+const addAc = (edge,type) => {
+    designRef.value.addNode(edge,type);
 }
 
 </script>

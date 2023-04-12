@@ -1,4 +1,4 @@
-import G6, {Graph} from '@antv/g6'
+import G6, {Graph,Edge} from '@antv/g6'
 import {registerAddEdge} from './../register/addEdge'
 
 export const useG6 = (containerId: string, emit) => {
@@ -6,7 +6,7 @@ export const useG6 = (containerId: string, emit) => {
     let idIndex = 0;//全局id变量
 
     //获取graph
-    const getGraph = () => {
+    const getGraph = ():Graph => {
         if (graphInstance) {
             return graphInstance;
         }
@@ -69,15 +69,18 @@ export const useG6 = (containerId: string, emit) => {
 
     //初始化节点
     const initNode = () => {
+        const id = getId('node');
         return {
-            id: getId('node'),
-            type: 'rect'
+            id: id,
+            type: 'rect',
+            label: id,
         }
     }
 
     //初始化边
     const initEdge = (sourceId, targetId) => {
-        return {id: getId('edge'), source: sourceId, target: targetId, type: 'Button'}
+        const id = `edge-${sourceId}-${targetId}`
+        return {id: id, source: sourceId, target: targetId, type: 'Button'}
     }
 
     //初始化
@@ -100,14 +103,29 @@ export const useG6 = (containerId: string, emit) => {
         graph.layout();
     }
 
-    const addNode = (type, node) => {
+    const addNode = (edge:Edge,type:string) => {
         if (type === 'route') {
-            return addRoute(node)
+            return addRoute(edge)
         }
+        //新增节点
+        const node = initNode();
+
+        const graph = getGraph();
+        graph.addItem('node',node);
+
+        //添加边
+        const source = edge.getSource();
+        const target = edge.getTarget();
+        const edge_source_node = initEdge(source.getID(),node.id);
+        const edge_node_target = initEdge(node.id,target.getID());
+        graph.addItem('edge',edge_source_node);
+        graph.addItem('edge',edge_node_target);
+        graph.remove(edge);
+        graph.layout();
     }
 
-    const addRoute = (node) => {
-
+    const addRoute = (edge:Edge) => {
+        console.log('add route')
     }
 
     return {getGraph, initView, addNode}

@@ -36,13 +36,20 @@ const styleRt = reactive({
     top: '0px',
 })
 
+//点击的边引用
+let edgeInstance = null;
+
 const visibleRef = ref(false)
+//监听body点击
+const bindRef = ref(false);
 
 const show = (node) => {
-    const {clientX, clientY} = node
+    const {clientX, clientY,item} = node
     styleRt.left = (clientX + 20) + 'px';
     styleRt.top = clientY + 'px';
     visibleRef.value = true;
+    edgeInstance = item;
+    bindBodyClick();
 }
 
 const close = () => {
@@ -50,8 +57,29 @@ const close = () => {
 }
 
 const selectAc = (type) => {
-    emit('add', type)
+    emit('add', edgeInstance,type)
     close();
+}
+
+//绑定一次body的点击事件,然后关闭菜单
+const bindBodyClick = () => {
+    const body = document.getElementsByTagName('body')[0];
+    body.addEventListener('click', unbindBodyClick, false);
+}
+
+//解除body点击监听,并关闭菜单
+const unbindBodyClick = () => {
+    if(!bindRef.value){
+        bindRef.value = true;
+    }else{
+        bindRef.value = false;
+        const body = document.getElementsByTagName('body')[0];
+        body.removeEventListener('click', unbindBodyClick);
+
+        if(visibleRef.value){
+            visibleRef.value = false;
+        }
+    }
 }
 
 defineExpose({
