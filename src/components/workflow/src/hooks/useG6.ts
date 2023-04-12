@@ -1,5 +1,6 @@
 import G6, {Graph,Edge} from '@antv/g6'
 import {registerAddEdge} from './../register/addEdge'
+import {registerRoute} from './../register/routeNode'
 
 export const useG6 = (containerId: string, emit) => {
     let graphInstance = null;//graph引用
@@ -60,6 +61,7 @@ export const useG6 = (containerId: string, emit) => {
     //注册
     const register = () => {
         registerAddEdge(G6)
+        registerRoute(G6);
     }
 
     //获取id
@@ -73,6 +75,16 @@ export const useG6 = (containerId: string, emit) => {
         return {
             id: id,
             type: 'rect',
+            label: id,
+        }
+    }
+
+    //初始化节点
+    const initRoute = () => {
+        const id = getId('route');
+        return {
+            id: id,
+            type: 'Route',
             label: id,
         }
     }
@@ -124,8 +136,36 @@ export const useG6 = (containerId: string, emit) => {
         graph.layout();
     }
 
+    //添加路由
     const addRoute = (edge:Edge) => {
-        console.log('add route')
+        //路由节点
+        const route = initRoute();
+        //2个节点
+        const node = initNode();
+        const defaultNode = initNode();
+
+        const graph = getGraph();
+        graph.addItem('node',route);
+        graph.addItem('node',node);
+        graph.addItem('node',defaultNode);
+
+
+        //添加边
+        const source = edge.getSource();
+        const target = edge.getTarget();
+
+        const edge_source_route = initEdge(source.getID(),route.id);
+        const edge_route_node = initEdge(route.id,node.id);
+        const edge_route_defaultNode = initEdge(route.id,defaultNode.id);
+        const edge_node_target = initEdge(node.id,target.getID());
+        const edge_defaultNode_target = initEdge(defaultNode.id,target.getID());
+        graph.addItem('edge',edge_source_route);
+        graph.addItem('edge',edge_route_node);
+        graph.addItem('edge',edge_route_defaultNode);
+        graph.addItem('edge',edge_node_target);
+        graph.addItem('edge',edge_defaultNode_target);
+        graph.remove(edge);
+        graph.layout();
     }
 
     return {getGraph, initView, addNode}
